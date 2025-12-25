@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherSphere | Прогноз погоды</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌤️</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-cloud-sun"></i>
+                <h1>WeatherSphere</h1>
+            </div>
+            <div class="header-controls">
+                <button id="refresh-btn" class="btn-refresh" title="Обновить данные">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Обновить</span>
+                </button>
+                <button id="add-city-btn" class="btn-add" title="Добавить город">
+                    <i class="fas fa-plus"></i>
+                    <span>Добавить город</span>
+                </button>
+                <!-- <button id="reset-btn" class="btn-reset" title="Сбросить данные" style="background: #d9534f;">
+                    <i class="fas fa-trash"></i>
+                    <span>Сбросить</span>
+                </button> -->
+            </div>
+        </header>
+
+        <main class="main-content">
+            <aside class="cities-sidebar">
+                <h2><i class="fas fa-map-marker-alt"></i> Мои города</h2>
+                <div id="cities-list" class="cities-list">
+                </div>
+            </aside>
+
+            <section class="weather-section">
+                <div class="loading-container" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Загружаем данные о погоде...</p>
+                </div>
+
+                <div class="error-container" id="error" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p id="error-message"></p>
+                </div>
+
+                <div class="current-weather" id="current-weather" style="display: none;">
+                    <div class="location-header">
+                        <h2 id="location-name">
+                            <i class="fas fa-location-dot"></i>
+                            <span>Текущее местоположение</span>
+                        </h2>
+                        <div class="location-info">
+                            <span id="location-date"></span>
+                            <span id="location-time"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-main">
+                        <div class="weather-icon-container">
+                            <div class="weather-icon" id="weather-icon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="temperature">
+                                <span id="current-temp">--</span>
+                                <span class="temp-unit">°C</span>
+                            </div>
+                            <div class="weather-description" id="weather-description"></div>
+                        </div>
+                        
+                        <div class="weather-details">
+                            <div class="detail-item">
+                                <i class="fas fa-wind"></i>
+                                <div>
+                                    <span class="detail-label">Ветер</span>
+                                    <span class="detail-value" id="wind-speed">-- м/с</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-tint"></i>
+                                <div>
+                                    <span class="detail-label">Влажность</span>
+                                    <span class="detail-value" id="humidity">--%</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-compress-alt"></i>
+                                <div>
+                                    <span class="detail-label">Давление</span>
+                                    <span class="detail-value" id="pressure">-- гПа</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-eye"></i>
+                                <div>
+                                    <span class="detail-label">Видимость</span>
+                                    <span class="detail-value" id="visibility">-- км</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="forecast" id="forecast" style="display: none;">
+                    <h3><i class="fas fa-calendar-alt"></i> Прогноз на 3 дня</h3>
+                    <div class="forecast-cards">
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>Данные предоставлены <a href="https://openweathermap.org/" target="_blank">OpenWeatherMap</a></p>
+            <p>© 2024 WeatherSphere</p>
+        </footer>
+    </div>
+
+    <div class="modal-overlay" id="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-city"></i> Добавить город</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="city-input"><i class="fas fa-search"></i> Введите название города</label>
+                    <div class="input-with-dropdown">
+                        <input type="text" id="city-input" placeholder="Например: Москва, Санкт-Петербург, Новосибирск">
+                        <div id="suggestions" class="suggestions-dropdown"></div>
+                    </div>
+                    <div id="city-error" class="error-message"></div>
+                </div>
+                <div class="popular-cities">
+                    <p>Популярные города:</p>
+                    <div class="popular-cities-list">
+                        <button class="city-chip" data-city="Москва">Москва</button>
+                        <button class="city-chip" data-city="Санкт-Петербург">Санкт-Петербург</button>
+                        <button class="city-chip" data-city="Новосибирск">Новосибирск</button>
+                        <button class="city-chip" data-city="Екатеринбург">Екатеринбург</button>
+                        <button class="city-chip" data-city="Казань">Казань</button>
+                        <button class="city-chip" data-city="Сочи">Сочи</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancel-btn">Отмена</button>
+                <button class="btn-add-city" id="add-city-submit">Добавить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
